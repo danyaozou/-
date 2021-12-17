@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
 nclass = 5
-imagedir = '/media/aircas/Elements SE/小论文/数据集/area1/reclasses/test_image'
-model_path = '/media/aircas/Elements SE/小论文/结果/unet/模型/unet_rrm_bl_2.h5'
-out_dir = '/media/aircas/Elements SE/小论文/结果/unet/prediction_unet_rrm_bl_2'
+imagedir = 'test_image'
+model_path = unet_rrm_mc.h5'
+out_dir = 'prediction_dir'
 
 blocksize = 256
 
@@ -25,7 +25,6 @@ for file in filelist:
     if os.path.splitext(file)[1] == '.tif':
         L.append(file)
 
-#自定义的损失函数,通过字典进行指定
 mod = load_model(model_path)
 
 scaler = StandardScaler()
