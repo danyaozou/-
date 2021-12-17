@@ -122,31 +122,6 @@ def unnet_model():
     conv9 = Conv2D(nclass, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
     conv10 = Conv2D(nclass, 1, activation='softmax')(conv9)
     #rrm
-    '''x_1 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=1)(conv10)
-    x_1 = BatchNormalization()(x_1)
-    x_1 = Activation('relu')(x_1)
-
-    x_2 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=2)(x_1)
-    x_2 = BatchNormalization()(x_2)
-    x_2 = Activation('relu')(x_2)
-
-    x_3 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=4)(x_2)
-    x_3 = BatchNormalization()(x_3)
-    x_3 = Activation('relu')(x_3)
-
-    x_4 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=8)(x_3)
-    x_4 = BatchNormalization()(x_4)
-    x_4 = Activation('relu')(x_4)
-
-    x_5 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=16)(x_4)
-    x_5 = BatchNormalization()(x_5)
-    x_5 = Activation('relu')(x_5)
-
-    x_6 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=32)(x_5)
-    x_6 = BatchNormalization()(x_6)
-    x_6 = Activation('relu')(x_6)'''
-
-    #rrm binglian
     x_1 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same', dilation_rate=1)(conv10)
     x_1 = BatchNormalization()(x_1)
     x_1 = Activation('relu')(x_1)
@@ -163,26 +138,7 @@ def unnet_model():
     x_4 = BatchNormalization()(x_4)
     x_4 = Activation('relu')(x_4)
 
-    x_0_1 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same')(conv10)
-    x_0_1 = BatchNormalization()(x_0_1)
-    x_0_1 = Activation('relu')(x_0_1)
-
-    x_0_2 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same')(x_0_1)
-    x_0_2 = BatchNormalization()(x_0_2)
-    x_0_2 = Activation('relu')(x_0_2)
-
-    x_0_3 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same')(x_0_2)
-    x_0_3 = BatchNormalization()(x_0_3)
-    x_0_3 = Activation('relu')(x_0_3)
-
-    x_0_4 = Conv2D(filters=64, kernel_size=(3, 3), strides=(1, 1), padding='same')(x_0_3)
-    x_0_4 = BatchNormalization()(x_0_4)
-    x_0_4 = Activation('relu')(x_0_4)
-
-
-
-
-    x = Add()([x_1, x_2, x_3,x_4,x_0_1,x_0_2,x_0_3,x_0_4])
+    x = Add()([x_1, x_2, x_3,x_4])
 
     x = Conv2D(filters=1, kernel_size=(3, 3), strides=(1, 1), padding='same')(x)
 
@@ -192,26 +148,22 @@ def unnet_model():
     conv10 = Reshape((input_height , input_width, nclass))(outputs)
 
     model = Model(inputs=inputs, outputs=conv10)
-    #model.compile(optimizer=Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])#'categorical_crossentropy'
     return model
 
 if __name__ == '__main__':
-    cnn_img_dir = '/media/aircas/Elements SE/小论文/数据集/area1/reclasses/train_image'
-    cnn_label_dir = '/media/aircas/Elements SE/小论文/数据集/area1/reclasses/train_label'
-    val_img_dir = '/media/aircas/Elements SE/小论文/数据集/area1/reclasses/val_image'
-    val_label_dir = '/media/aircas/Elements SE/小论文/数据集/area1/reclasses/val_label'
-    out_model = '/media/aircas/Elements SE/小论文/结果/unet/模型/unet_rrm_bl_3.h5'
-    label_path = '/home/aircas/zsy/litixunjian/litixunjian/数据/label'
-    #weight = get_weight(label_path)
-    weight = {0:0.25,1:3,2:1.5,3:4,4:10}
+    cnn_img_dir = 'train_image'
+    cnn_label_dir = 'train_label'
+    val_img_dir = 'val_image'
+    val_label_dir = 'val_label'
+    out_model = 'unet_rrm_mc.h5'
     generator = imageLabelGenerator(cnn_img_dir, cnn_label_dir, batchsize=5)
     val_generator = imageLabelGenerator(val_img_dir,val_label_dir,batchsize=5)
     model = unnet_model()
-    model_path = '/media/aircas/Elements SE/小论文/结果/unet/模型/unet109.h5'
+    model_path = 'unet.h5'
     model.load_weights(model_path,by_name=True,skip_mismatch=True)
     model.compile(optimizer=Adam(lr=1e-4,decay=1e-6), loss='categorical_crossentropy', metrics=['accuracy'])
     model_checkpoint = ModelCheckpoint(out_model, monitor='loss', verbose=1, save_best_only=True)
-    history = model.fit_generator(generator,steps_per_epoch=106*5*2, epochs=300, callbacks=[model_checkpoint],validation_data=val_generator,validation_steps=34*5*2)#validation_data=val_generator,validation_steps=33,
+    history = model.fit_generator(generator,steps_per_epoch=1060, epochs=300, callbacks=[model_checkpoint],validation_data=val_generator,validation_steps=340)
     fig = plt.figure()
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
@@ -222,4 +174,4 @@ if __name__ == '__main__':
     plt.xlabel('epoch')
     plt.legend(['acc', 'val_acc'], loc='upper left')
     plt.show()
-    fig.savefig('/media/aircas/Elements SE/小论文/结果/unet/评价指标/unet_rrm_bl_3.png')
+    fig.savefig('')
